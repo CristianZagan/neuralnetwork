@@ -2,12 +2,9 @@ package org.example;
 
 /**
  * Hello world!
- *
  */
-public class App 
-{
-    public static void main( String[] args )
-    {
+public class App {
+    public static void main(String[] args) {
         // inputs
         double[] x = {0, 1};
 
@@ -27,7 +24,7 @@ public class App
         z += b;
 
         // activation function
-        double a = z > 0 ? 1.0: 0.0;
+        double a = z > 0 ? 1.0 : 0.0;
 
         // print output
         System.out.println(a);
