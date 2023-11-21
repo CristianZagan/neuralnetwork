@@ -45,6 +45,44 @@ public class Matrix {
         return result;
     }
 
+    public Matrix multiply(Matrix m) {
+        Matrix result = new Matrix(rows, m.cols);
+
+        assert cols == m.rows: "Cannot multiply; wrong number of rows vs cols";
+
+        /*
+        * row, col, n
+        * row, n, col
+        * col, n, row
+        * col, row, n
+        * n, row, col
+        * n, col, row
+         */
+
+        for (int row = 0; row < result.rows; row++) {
+            for (int n = 0; n < cols; n++) {
+                for (int col = 0; col < result.cols; col++) {
+                    result.a[row * result.cols + col] += a[row * cols + n] * m.a[col + n * m.cols];
+                }
+            }
+        }
+
+        /*
+        * 0 1 2
+        * 3 4 5
+        * 6 7 8
+        *
+        * row = 2
+        * col = 1
+        *
+        * cols = 3
+        *
+        * row x cols + col
+        */
+
+        return result;
+    }
+
     public double get(int index) {
         return a[index];
     }
