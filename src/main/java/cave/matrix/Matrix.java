@@ -15,8 +15,18 @@ public class Matrix {
         double produce(int index);
     }
 
-    public interface ValueProducer {
+
+
+    public interface IndexValueProducer {
         double produce(int index, double value);
+    }
+
+    public interface valueProducer {
+        double produce(double value);
+    }
+
+    public interface indexValueConsumer {
+        void consume(int index, double value);
     }
 
     public interface RowColProducer {
@@ -39,7 +49,7 @@ public class Matrix {
         }
     }
 
-    public Matrix apply(ValueProducer producer) {
+    public Matrix apply(IndexValueProducer producer) {
         Matrix result = new Matrix(rows, cols);
 
         for (int i = 0; i <a.length; i++) {
@@ -61,6 +71,23 @@ public class Matrix {
             }
         }
         return this;
+    }
+
+    public Matrix modify(valueProducer producer) {
+
+        for (int i = 0; i < a.length; i++) {
+
+            a[i] = producer.produce(a[i]);
+
+        }
+
+        return this;
+    }
+
+    public void forEach(indexValueConsumer consumer) {
+        for (int i = 0; i < a.length; i++) {
+            consumer.consume(i, a[i]);
+        }
     }
 
     public Matrix multiply(Matrix m) {
