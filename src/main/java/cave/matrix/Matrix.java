@@ -15,18 +15,20 @@ public class Matrix {
         double produce(int index);
     }
 
-
-
     public interface IndexValueProducer {
         double produce(int index, double value);
     }
 
-    public interface valueProducer {
+    public interface ValueProducer {
         double produce(double value);
     }
 
-    public interface indexValueConsumer {
+    public interface IndexValueConsumer {
         void consume(int index, double value);
+    }
+
+    public interface RowColValueConsumer {
+        void consume(int row, int col, double value);
     }
 
     public interface RowColProducer {
@@ -44,7 +46,7 @@ public class Matrix {
     public Matrix(int rows, int cols, Producer producer) {
         this(rows, cols);
 
-        for (int i = 0; i <a.length; i++) {
+        for (int i = 0; i < a.length; i++) {
             a[i] = producer.produce(i);
         }
     }
@@ -52,7 +54,7 @@ public class Matrix {
     public Matrix apply(IndexValueProducer producer) {
         Matrix result = new Matrix(rows, cols);
 
-        for (int i = 0; i <a.length; i++) {
+        for (int i = 0; i < a.length; i++) {
             result.a[i] = producer.produce(i, a[i]);
         }
 
@@ -73,7 +75,7 @@ public class Matrix {
         return this;
     }
 
-    public Matrix modify(valueProducer producer) {
+    public Matrix modify(ValueProducer producer) {
 
         for (int i = 0; i < a.length; i++) {
 
@@ -84,7 +86,18 @@ public class Matrix {
         return this;
     }
 
-    public void forEach(indexValueConsumer consumer) {
+    public void forEach(RowColValueConsumer consumer) {
+
+        int index = 0;
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                consumer.consume(row, col, a[index++]);
+            }
+        }
+    }
+
+    public void forEach(IndexValueConsumer consumer) {
         for (int i = 0; i < a.length; i++) {
             consumer.consume(i, a[i]);
         }
@@ -93,15 +106,15 @@ public class Matrix {
     public Matrix multiply(Matrix m) {
         Matrix result = new Matrix(rows, m.cols);
 
-        assert cols == m.rows: "Cannot multiply; wrong number of rows vs cols";
+        assert cols == m.rows : "Cannot multiply; wrong number of rows vs cols";
 
         /*
-        * row, col, n
-        * row, n, col
-        * col, n, row
-        * col, row, n
-        * n, row, col
-        * n, col, row
+         * row, col, n
+         * row, n, col
+         * col, n, row
+         * col, row, n
+         * n, row, col
+         * n, col, row
          */
 
         for (int row = 0; row < result.rows; row++) {
@@ -113,23 +126,49 @@ public class Matrix {
         }
 
         /*
-        * 0 1 2
-        * 3 4 5
-        * 6 7 8
-        *
-        * row = 2
-        * col = 1
-        *
-        * cols = 3
-        *
-        * row x cols + col
-        */
+         * 0 1 2
+         * 3 4 5
+         * 6 7 8
+         *
+         * row = 2
+         * col = 1
+         *
+         * cols = 3
+         *
+         * row x cols + col
+         */
 
         return result;
     }
 
-    public double get(int index) {
-        return a[index];
+    public Matrix sumColumns() {
+        Matrix result = new Matrix(1, cols);
+
+        int index = 0;
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                result.a[col] += a[index++];
+            }
+        }
+
+        return result;
+    }
+
+    public Matrix softmax() {
+        Matrix result = new Matrix(rows, cols, i -> Math.exp(a[i]));
+
+        Matrix colSum = result.sumColumns();
+
+        result.modify((row, col, value) -> {
+            return value / colSum.get(col);
+        });
+
+        return result;
+    }
+
+    public double get(double index) {
+        return a[(int) index];
     }
 
     @Override
