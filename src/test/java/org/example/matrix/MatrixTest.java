@@ -1,4 +1,4 @@
-package org.example.Matrix;
+package org.example.matrix;
 
 import cave.matrix.Matrix;
 import org.junit.jupiter.api.Test;

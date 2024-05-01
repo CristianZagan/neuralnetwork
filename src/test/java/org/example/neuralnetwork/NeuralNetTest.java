@@ -1,4 +1,4 @@
-package org.example;
+package org.example.neuralnetwork;
 
 import static org.junit.jupiter.api.Assertions.*;
 
