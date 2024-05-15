@@ -51,6 +51,14 @@ public class Matrix {
         }
     }
 
+    public int getRows() {
+        return rows;
+    }
+
+    public int getCols() {
+        return cols;
+    }
+
     public Matrix apply(IndexValueProducer producer) {
         Matrix result = new Matrix(rows, cols);
 
@@ -190,6 +198,14 @@ public class Matrix {
         int result = Objects.hash(rows, cols);
         result = 31 * result + Arrays.hashCode(a);
         return result;
+    }
+
+    public String toString(boolean showValues) {
+        if (showValues) {
+            return toString();
+        } else {
+            return rows + "x" + cols;
+        }
     }
 
     public String toString() {
