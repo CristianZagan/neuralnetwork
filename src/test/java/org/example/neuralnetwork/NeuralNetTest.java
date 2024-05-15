@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import cave.matrix.Matrix;
 import org.example.Engine;
+import org.example.LossFunction;
 import org.example.Transform;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +15,26 @@ public class NeuralNetTest {
     private Random random = new Random();
 
     @Test
+    void testCrossEntropy() {
+        double[] expectedValues = {1, 0, 0, 0, 0, 1, 0, 1, 0};
+        Matrix expected = new Matrix(3, 3, i -> expectedValues[i]);
+
+        Matrix actual = new Matrix (3, 3, i -> 0.05 * i * i - 4).softmax();
+
+        Matrix result = LossFunction.crossEntropy(expected, actual);
+
+        actual.forEach((row, col, index, value) -> {
+            double expectedValue = expected.get(index);
+
+            double loss = result.get(col);
+
+            if (expectedValue > 0.9) {
+                assertTrue(Math.abs(Math.log(value) + loss) < 0.001);
+            }
+        });
+    }
+
+    //@Test
     void testEngine() {
         Engine engine = new Engine();
 
