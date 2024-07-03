@@ -1,4 +1,4 @@
-package org.example.matrix;
+package org.neuralnetwork.matrix;
 
 import cave.matrix.Matrix;
 import org.junit.jupiter.api.Test;

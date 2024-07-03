@@ -190,6 +190,10 @@ public class Matrix {
         return result;
     }
 
+    public void set(int row, int col, double value) {
+        a[row * cols + col] = value;
+    }
+
     public double get(double index) {
         return a[(int) index];
     }
@@ -207,6 +211,8 @@ public class Matrix {
         }
         return true;
     }
+
+
 
     @Override
     public int hashCode() {

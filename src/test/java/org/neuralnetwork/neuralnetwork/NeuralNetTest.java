@@ -1,11 +1,12 @@
-package org.example.neuralnetwork;
+package org.neuralnetwork.neuralnetwork;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import cave.matrix.Matrix;
-import org.example.Engine;
-import org.example.LossFunction;
-import org.example.Transform;
+import org.neuralnetwork.Approximator;
+import org.neuralnetwork.Engine;
+import org.neuralnetwork.LossFunction;
+import org.neuralnetwork.Transform;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -13,6 +14,30 @@ import java.util.Random;
 public class NeuralNetTest {
 
     private Random random = new Random();
+
+    @Test
+    void testApproximator() {
+
+        final int rows = 4;
+        final int cols = 5;
+
+        Matrix input = new Matrix(rows, cols, i -> random.nextGaussian());
+
+        Matrix expected = new Matrix(rows, cols, i -> 0);
+
+        for (int col = 0; col < cols; col++) {
+            int randomRow = random.nextInt(rows);
+
+            expected.set(randomRow, col, 1);
+        }
+
+        Approximator.gradient(input, null);
+
+        System.out.println();
+        System.out.println(input);
+
+        System.out.println(expected);
+    }
 
     @Test
     void testCrossEntropy() {
