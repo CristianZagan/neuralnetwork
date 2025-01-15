@@ -8,12 +8,16 @@ public class Approximator {
 
     public static Matrix gradient(Matrix input, Function<Matrix, Matrix> transform) {
 
-        input.forEach((row, col, index, value) -> {
-            System.out.printf("%12.5f", value);
+        Matrix loss1 = transform.apply(input);
 
-            if (col == input.getCols() - 1) {
-                System.out.println();
-            }
+        assert loss1.getCols() == input.getCols(): "Input/loss columns not equal";
+        assert loss1.getRows() == 1: "Transform does not return one single row";
+
+        System.out.println(input);
+        System.out.println(loss1);
+
+        input.forEach((row, col, index, value) -> {
+
         });
 
         return null;
