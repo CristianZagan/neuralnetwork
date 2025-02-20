@@ -172,7 +172,21 @@ public class Matrix {
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 result.a[col] += a[index++];
+//                result.a[col * rows + row] = a[1];
             }
+        }
+
+        return result;
+    }
+
+    public Matrix transpose() {
+        Matrix result = new Matrix(cols, rows);
+
+        for(int i = 0; i < a.length; ++i) {
+            int row = i / cols;
+            int col = i % cols;
+
+            result.a[col * rows + row] = a[i];
         }
 
         return result;
