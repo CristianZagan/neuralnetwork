@@ -16,7 +16,11 @@ public class NeuralNetTest {
     private Random random = new Random();
 
     @Test
-    void testBackPropWeights() {
+    void testBackProp() {
+
+        interface NeuralNet {
+            Matrix apply(Matrix m);
+        }
 
         final int inputRows = 4;
         final int cols = 5;
@@ -26,7 +30,8 @@ public class NeuralNetTest {
 
         Matrix expected = new Matrix(outputRows, cols, i -> 0);
 
-        Matrix weights = new Matrix(outputRows, inputRows);
+        Matrix weights = new Matrix(outputRows, inputRows, i -> random.nextGaussian());
+        Matrix biases = new Matrix(outputRows, 1, i -> random.nextGaussian());
 
         for (int col = 0; col < cols; col++) {
             int randomRow = random.nextInt(outputRows);
@@ -34,13 +39,29 @@ public class NeuralNetTest {
             expected.set(randomRow, col, 1);
         }
 
-        Matrix softmaxOutput = input.softmax();
+        NeuralNet neuralNet = m -> {
+
+            Matrix out = m.apply(((index, value) -> value > 0 ? value: 0));
+            out = weights.multiply(out); // weights
+            out.modify((row, col, value) -> value + biases.get(row)); // biases
+            out = out.softmax(); // Softmax activation function
+
+            return out;
+        };
+        Matrix softmaxOutput = neuralNet.apply(input);
 
         Matrix approximatedResult = Approximator.gradient(input, in->{
-            return LossFunction.crossEntropy(expected, in.softmax());
+            Matrix out = neuralNet.apply(in);
+            return LossFunction.crossEntropy(expected, out);
         });
 
         Matrix calculatedResult = softmaxOutput.apply((index, value) -> value - expected.get(index));
+
+        calculatedResult = weights.transpose().multiply(calculatedResult);
+        calculatedResult = calculatedResult.apply((index, value )-> input.get(index) > 0 ? value: 0);
+
+//        System.out.println(calculatedResult);
+//        System.out.println(approximatedResult);
 
         assertTrue(approximatedResult.equals(calculatedResult));
     }
@@ -128,7 +149,7 @@ public class NeuralNetTest {
         });
     }
 
-    //@Test
+    @Test
     void testEngine() {
         Engine engine = new Engine();
 
@@ -144,9 +165,10 @@ public class NeuralNetTest {
         Matrix input = new Matrix(5, 4, i -> random.nextGaussian());
 
         Matrix output = engine.runForwards(input);
+        engine.runBackwards(null);
 
-        System.out.println(engine);
-        System.out.println(output);
+//        System.out.println(engine);
+//        System.out.println(output);
     }
 
     //@Test
