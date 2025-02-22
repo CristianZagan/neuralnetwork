@@ -10,10 +10,19 @@ public class Engine {
     private LinkedList<Matrix> weights = new LinkedList<>();
     private LinkedList<Matrix> biases = new LinkedList<>();
 
-    public Matrix runForwards(Matrix input) {
+    private LossFunction lossFunction = LossFunction.CROSSENTROPY;
+
+    private boolean storeInputError = false;
+
+    public BatchResult runForwards(Matrix input) {
+
+        BatchResult batchResult = new BatchResult();
         Matrix output = input;
 
         int denseIndex = 0;
+
+        batchResult.addIo(output);
+
         for (var t: transforms) {
             if (t == Transform.DENSE) {
 
@@ -30,24 +39,40 @@ public class Engine {
             }
             else if (t == Transform.SOFTMAX) {
                 output = output.softmax();
-
             }
+            batchResult.addIo(output);
         }
 
-        return output;
+        return batchResult;
     }
 
-    public Matrix runBackwards(Matrix error) {
+    public void runBackwards(BatchResult batchResult, Matrix expected) {
 
         var transformsIt = transforms.descendingIterator();
+
+        if(lossFunction != LossFunction.CROSSENTROPY || transforms.getLast() != Transform.SOFTMAX) {
+            throw new UnsupportedOperationException("Loss function must be cross entropy and last transform must be softmax");
+        }
+
+        var ioIt = batchResult.getIo().descendingIterator();
+        var weightIt = weights.descendingIterator();
+        Matrix softmaxOutput = ioIt.next();
+        Matrix error = softmaxOutput.apply((index, value) -> value - expected.get(index));
 
         while(transformsIt.hasNext()) {
             Transform transform = transformsIt.next();
 
+            Matrix input = ioIt.next();
+
             switch (transform) {
                 case DENSE:
+                    Matrix weight = weightIt.next();
+                    if(weightIt.hasNext() || storeInputError) {
+                        error = weight.transpose().multiply(error);
+                    }
                     break;
                 case RELU:
+                    error = error.apply((index, value )-> input.get(index) > 0 ? value: 0);
                     break;
                 case SOFTMAX:
                     break;
@@ -55,9 +80,12 @@ public class Engine {
                     throw new UnsupportedOperationException("Not Implemented");
             }
 
-            System.out.println(transform);
+//            System.out.println(transform);
         }
-        return null;
+
+        if(storeInputError) {
+            batchResult.setInputError(error);
+        }
     }
 
     public void add(Transform transform, double... params) {
@@ -76,6 +104,10 @@ public class Engine {
 
         }
         transforms.add(transform);
+    }
+
+    public void setStoreInputError(boolean storeInputError) {
+        this.storeInputError = storeInputError;
     }
 
     @Override
