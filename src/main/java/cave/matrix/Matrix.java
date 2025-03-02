@@ -11,6 +11,8 @@ public class Matrix {
     private int rows;
     private int cols;
 
+
+
     public interface Producer {
         double produce(int index);
     }
@@ -55,6 +57,16 @@ public class Matrix {
         }
     }
 
+    public Matrix(int rows, int cols, double[] values) {
+        this.rows = rows;
+        this.cols = cols;
+
+        Matrix tmp = new Matrix(cols, rows);
+        tmp.a = values;
+        Matrix transposed = tmp.transpose();
+        a = transposed.a;
+    }
+
     public int getRows() {
         return rows;
     }
@@ -92,6 +104,17 @@ public class Matrix {
         for (int i = 0; i < a.length; i++) {
 
             a[i] = producer.produce(a[i]);
+
+        }
+
+        return this;
+    }
+
+    public Matrix modify(IndexValueProducer producer) {
+
+        for (int i = 0; i < a.length; i++) {
+
+            a[i] = producer.produce(i, a[i]);
 
         }
 
@@ -164,6 +187,34 @@ public class Matrix {
         return result;
     }
 
+    public double sum() {
+        double sum = 0;
+
+        for(var v: a) {
+            sum += v;
+        }
+        return sum;
+    }
+
+    public Matrix getGreatestRowNumbers() {
+        Matrix result = new Matrix (1, cols);
+
+        double[] greatest = new double[cols];
+
+        for(int i = 0; i < cols; i++) {
+            greatest[i] = Double.MIN_VALUE;
+        }
+
+        forEach((row, col, value) -> {
+            if(value > greatest[col]) {
+                greatest[col] = value;
+                result.a[col] = row;
+            }
+        });
+
+        return result;
+    }
+
     public Matrix sumColumns() {
         Matrix result = new Matrix(1, cols);
 
@@ -189,6 +240,15 @@ public class Matrix {
             result.a[col * rows + row] = a[i];
         }
 
+        return result;
+    }
+
+    public Matrix averageColumn() {
+        Matrix result = new Matrix(rows, 1);
+
+        forEach((row, col, value) -> {
+            result.a[row] += value/cols;
+        });
         return result;
     }
 
