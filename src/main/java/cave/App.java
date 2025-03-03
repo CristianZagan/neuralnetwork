@@ -1,20 +1,10 @@
 package cave;
-
-import org.neuralnetwork.NeuralNetwork;
-import org.neuralnetwork.Transform;
-
 public class App {
     public static void main(String[] args) {
 
-        int inputRows = 10;
-        int outputRows = 3;
-
-        NeuralNetwork neuralNetwork = new NeuralNetwork();
-        neuralNetwork.add(Transform.DENSE, 100, inputRows);
-        neuralNetwork.add(Transform.RELU);
-        neuralNetwork.add(Transform.DENSE, outputRows);
-        neuralNetwork.add(Transform.SOFTMAX);
-
-        System.out.println(neuralNetwork);
+        if(args.length == 0) {
+            System.out.println("usage: [app] <MNIST DATA DIRECTORY");
+            return;
+        }
     }
 }

@@ -2,17 +2,24 @@ package org.neuralnetwork;
 
 import cave.matrix.Matrix;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class Engine {
+public class Engine implements Serializable {
+    private static final long serialVersionUID = 1L;
     private LinkedList<Transform> transforms = new LinkedList<>();
     private LinkedList<Matrix> weights = new LinkedList<>();
     private LinkedList<Matrix> biases = new LinkedList<>();
 
     private LossFunction lossFunction = LossFunction.CROSSENTROPY;
+    private double scaleInitialWeights = 1;
 
     private boolean storeInputError = false;
+
+    public void setScaleInitialWeights(double scale) {
+        scaleInitialWeights = scale;
+    }
 
     public void evaluate(BatchResult batchResult, Matrix expected) {
         if(lossFunction != LossFunction.CROSSENTROPY) {
@@ -150,8 +157,8 @@ public class Engine {
             int numberNeurons = (int)params[0];
             int weightsPerNeuron = weights.size() == 0 ? (int)params[1]: weights.getLast().getRows();
 
-            Matrix weight = new Matrix(numberNeurons, weightsPerNeuron, i -> random.nextGaussian());
-            Matrix bias = new Matrix(numberNeurons, weightsPerNeuron, i -> 0);
+            Matrix weight = new Matrix(numberNeurons, weightsPerNeuron, i -> scaleInitialWeights * random.nextGaussian());
+            Matrix bias = new Matrix(numberNeurons,1, i -> 0);
 
             weights.add(weight);
             biases.add(bias);
@@ -167,6 +174,10 @@ public class Engine {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+
+        sb.append(String.format("Scale initial weights: %.3f\n", scaleInitialWeights));
+
+        sb.append("\nTransforms:\n");
 
         int weightIndex = 0;
         for (var t : transforms) {

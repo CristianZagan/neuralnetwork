@@ -1,9 +1,11 @@
 package cave.matrix;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Matrix {
+public class Matrix implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static final String NUMBER_FORMAT = "%+12.5f";
     public double tolerance = 0.000001;
@@ -11,7 +13,9 @@ public class Matrix {
     private int rows;
     private int cols;
 
-
+    public double[] get() {
+        return a;
+    }
 
     public interface Producer {
         double produce(int index);
